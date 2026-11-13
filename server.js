@@ -1,5 +1,9 @@
 const express = require("express")
+const cors = require("cors")
 const app = express()
+
+app.use(cors())
+app.use(express.json())
 
 // panggil router member
 const member = require("./routers/member")
@@ -14,8 +18,9 @@ app.use("/users",users)
 app.use("/transaksi",transaksi)
 app.use("/auth", login)
 
-app.listen(1337,() => {
-    console.log(`Server run on port 1337`);
+const port = process.env.PORT || 1337
+app.listen(port,() => {
+    console.log(`Server run on port ${port}`);
 })
 
 // split
@@ -51,4 +56,3 @@ app.listen(8222,() => {
 
 
 */
-

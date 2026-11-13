@@ -18,8 +18,16 @@ const detail_transaksi = models.detail_transaksi
 
 // endpoint get data transaksi / detail transaksi
 app.get("/", async(request, response) => {
-    let dataTransaksi = await transaksi.findAll()
-    return response.json(dataTransaksi) 
+    let dataTransaksi = await transaksi.findAll({
+        include: [
+            { model: models.member },
+            {
+                model: detail_transaksi,
+                include: [{ model: models.paket }]
+            }
+        ]
+    })
+    return response.json(dataTransaksi)
 })
 
 
@@ -143,6 +151,18 @@ app.post("/status/:id_transaksi", (request, response) => {
     })
 
 })
+
+app.delete("/:id_transaksi", async (request, response) => {
+    try {
+        const parameter = { id_transaksi: request.params.id_transaksi }
+        await detail_transaksi.destroy({ where: parameter })
+        await transaksi.destroy({ where: parameter })
+        return response.json({ message: `Transaksi berhasil dihapus` })
+    } catch (error) {
+        return response.status(500).json({ message: error.message })
+    }
+})
+
 // endpoint untuk mengubah status pembayaran
 app.get("/bayar/:id_transaksi", (request, response) => {
     let parameter = {
@@ -162,7 +182,7 @@ app.get("/bayar/:id_transaksi", (request, response) => {
             message: `Transaksi telah dibayar`
         })
     })
-    .catch(result => {
+    .catch(error => {
         return response.json({
             message: error.message
         })

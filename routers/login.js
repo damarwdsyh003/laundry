@@ -2,8 +2,12 @@ const express = require ("express")
 const md5 = require('md5')
 const login = express()
 login.use(express.json())
+const buffer = require("buffer")
+if (!buffer.SlowBuffer) {
+    buffer.SlowBuffer = buffer.Buffer
+}
 const jwt = require("jsonwebtoken")
-const secretkey = "skeet1337"
+const secretkey = process.env.JWT_SECRET || "development-secret-change-me"
 
 const models = require('../models/index')
 //const { request } = require("express")
@@ -19,11 +23,17 @@ login.post('/', async (request, response) => {
     });
 
     if(dataUser){
-        let payload = JSON.stringify(dataUser)
+        const payload = {
+            id_user: dataUser.id_user,
+            nama: dataUser.nama,
+            username: dataUser.username,
+            role: dataUser.role
+        }
         let token = jwt.sign(payload, secretkey)
         return response.json({
             logged: true,
-            token: token
+            token: token,
+            user: payload
 
         })
        /* let token = md5(newLogin)
