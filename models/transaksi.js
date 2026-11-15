@@ -12,7 +12,10 @@ module.exports = (sequelize, DataTypes) => {
     static associate(models) {
       transaksi.belongsTo(models.member, { foreignKey: "id_member" });
       transaksi.belongsTo(models.users, { foreignKey: "id_user" });
-      transaksi.hasMany(models.detail_transaksi, { foreignKey: "id_transaksi" });
+      transaksi.hasMany(models.detail_transaksi, {
+        foreignKey: "id_transaksi",
+        as: "detail_transaksi"
+      });
     }
   };
   transaksi.init({

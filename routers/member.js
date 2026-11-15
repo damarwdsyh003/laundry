@@ -29,7 +29,7 @@ app.post("/", (request, response) => {
     let newMember = {
       nama: request.body.nama,
       alamat: request.body.alamat,
-      jenis_kelamin: request.body.jenis,
+      jenis_kelamin: request.body.jenis_kelamin,
       telepon: request.body.telepon  
     } 
 

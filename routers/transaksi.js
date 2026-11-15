@@ -23,6 +23,7 @@ app.get("/", async(request, response) => {
             { model: models.member },
             {
                 model: detail_transaksi,
+                as: "detail_transaksi",
                 include: [{ model: models.paket }]
             }
         ]
@@ -33,8 +34,15 @@ app.get("/", async(request, response) => {
 
 // endpoint new transaksi
 app.post("/", (request,response) => {
+    const idMember = Number(request.body.id_member)
+    if (!Number.isInteger(idMember) || idMember <= 0) {
+        return response.status(400).json({
+            message: "A valid member is required"
+        })
+    }
+
     let newTransaksi = {
-        id_member: request.body.id_member,
+        id_member: idMember,
         tgl: request.body.tgl,
         batas_waktu: request.body.batas_waktu,
         tgl_bayar: request.body.tgl_bayar,

@@ -14,34 +14,76 @@ const models = require('../models/index')
 const user = models.users;
 
 login.post('/', async (request, response) => {
-    let newLogin = {
-        username :  request.body.username,
-        password : md5(request.body.password)
-    }
-    let dataUser = await user.findOne({
-        where : newLogin
-    });
-
-    if(dataUser){
-        const payload = {
-            id_user: dataUser.id_user,
-            nama: dataUser.nama,
-            username: dataUser.username,
-            role: dataUser.role
+    try {
+        let newLogin = {
+            username : request.body.username,
+            password : md5(request.body.password)
         }
-        let token = jwt.sign(payload, secretkey)
-        return response.json({
-            logged: true,
-            token: token,
-            user: payload
+        let dataUser = await user.findOne({
+            where : newLogin
+        });
 
-        })
-       /* let token = md5(newLogin)
-        response.send({token}) */
-    } else {
+        if(dataUser){
+            const payload = {
+                id_user: dataUser.id_user,
+                nama: dataUser.nama,
+                username: dataUser.username,
+                role: dataUser.role
+            }
+            let token = jwt.sign(payload, secretkey)
+            return response.json({
+                logged: true,
+                token: token,
+                user: payload
+            })
+        }
+
         return response.json({
             logged: false,
             message: `Invalid username or password`
+        })
+    } catch (error) {
+        return response.status(500).json({
+            logged: false,
+            message: `Unable to connect to the account service`
+        })
+    }
+})
+
+login.post('/register', async (request, response) => {
+    const { nama, username, password } = request.body
+
+    if (!nama || !username || !password) {
+        return response.status(400).json({
+            registered: false,
+            message: 'Name, username, and password are required'
+        })
+    }
+
+    try {
+        const existingUser = await user.findOne({ where: { username } })
+        if (existingUser) {
+            return response.status(409).json({
+                registered: false,
+                message: 'That username is already in use'
+            })
+        }
+
+        await user.create({
+            nama,
+            username,
+            password: md5(password),
+            role: 'Kasir'
+        })
+
+        return response.status(201).json({
+            registered: true,
+            message: 'Account created successfully'
+        })
+    } catch (error) {
+        return response.status(500).json({
+            registered: false,
+            message: 'Unable to create the account'
         })
     }
 })
